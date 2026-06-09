@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "npx playwright test --project='chromium' --headed --grep"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jdmesalosada/playwright-reto-30-dias.git"
