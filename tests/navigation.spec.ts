@@ -9,7 +9,7 @@ test.describe('Validate sidebar items @Navigation', () => {
     await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
   })
 
-  test('Check sidebar options', async ({ page }) => {
+  test('Check sidebar options @Navigation1', async ({ page }) => {
     const sidebarItems = page.getByLabel('Sidepanel').getByRole('listitem')
     const currentSideBarItemsCount = await sidebarItems.count()
     console.log('Current sidebar items count', currentSideBarItemsCount)
@@ -38,4 +38,22 @@ test.describe('Validate sidebar items @Navigation', () => {
     expect(currentSidebarItems).toEqual(expectedSidebarItems)
     expect(currentSidebarItems[0].toLowerCase()).toBe('admin')
   })
+
+  test('Navigate through sidebar options @Navigation2', async ({ page }) => {
+    const sidebarItems = page.getByLabel('Sidepanel').getByRole('listitem')
+    const currentSideBarItemsCount = await sidebarItems.count()
+
+    for (let i = 0; i < currentSideBarItemsCount; i++) {
+      const sidebarItem = sidebarItems.nth(i)
+      const sidebarText = await sidebarItem.innerText()
+
+      console.log(`Navigating to ${sidebarText} page`)
+      await sidebarItem.click()
+      if (sidebarText.toLowerCase() === 'maintenance') {
+        await page.goBack();
+      }
+    }
+  })
 })
+
+
