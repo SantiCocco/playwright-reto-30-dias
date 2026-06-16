@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-test.describe('Validate sidebar items @Navigation', () => {
+test.describe('Validate website navigation @Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('https://opensource-demo.orangehrmlive.com/')
     await page.getByRole('textbox', { name: 'Username' }).fill('Admin')
@@ -52,6 +52,44 @@ test.describe('Validate sidebar items @Navigation', () => {
       if (sidebarText.toLowerCase() === 'maintenance') {
         await page.goBack();
       }
+    }
+  })
+
+  test('Check all the Job links @Navigation3', async ({ page }) => {
+    const expectedPages = [
+      {
+        menu: 'Job Titles',
+        url: '/admin/viewJobTitleList'
+      },
+      {
+        menu: 'Pay Grades',
+        url: '/admin/viewPayGrades'
+      },
+      {
+        menu: 'Employment Status',
+        url: '/admin/employmentStatus'
+      },
+      {
+        menu: 'Job Categories',
+        url: '/admin/jobCategory'
+      },
+      {
+        menu: 'Work Shifts',
+        url: '/admin/workShift'
+      }
+    ]
+
+    await page.getByRole('link', { name: 'Admin' }).click()
+    await page.getByRole('navigation', { name: 'Topbar menu' }).getByText('Job').click()
+
+    const jobOptions = page.getByRole('menu').locator('li')
+
+    for (const expectedPage of expectedPages) {
+      const jobOption = jobOptions.filter({ hasText: expectedPage.menu })
+      await expect(jobOption).toBeVisible()
+      await jobOption.click()
+      await expect(page).toHaveURL(new RegExp(expectedPage.url))
+      await page.getByRole('navigation', { name: 'Topbar menu' }).getByText('Job').click()
     }
   })
 })
