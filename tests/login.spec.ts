@@ -1,27 +1,24 @@
 import { expect, test } from '@playwright/test'
+import { LoginPage } from '../pageObjects/LoginPage'
 
 test.describe('Login OrangeHRM @login', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('https://opensource-demo.orangehrmlive.com/')
-  })
 
   test('Login to hrm', async ({ page }) => {
-    await page.getByRole('textbox', { name: 'Username' }).fill('Admin')
-    await page.getByRole('textbox', { name: 'Password' }).fill('admin123')
-    await page.getByRole('button', { name: 'Login' }).click()
+    const loginPage = new LoginPage(page);
+    await loginPage.doLogin('Admin', 'admin123');
     await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
   })
 
   test('Empty fields', async ({ page }) => {
-    await page.getByRole('button', { name: 'Login' }).click()
+    const loginPage = new LoginPage(page);
+    await loginPage.doLogin('', '');
     await expect(page.getByText('Required').first()).toBeVisible()
     await expect(page.getByText('Required').nth(1)).toBeVisible()
   })
 
   test('Invalid credentials', async ({ page }) => {
-    await page.getByRole('textbox', { name: 'Username' }).fill('Admin')
-    await page.getByRole('textbox', { name: 'Password' }).fill('wrongpassword')
-    await page.getByRole('button', { name: 'Login' }).click()
+    const loginPage = new LoginPage(page);
+    await loginPage.doLogin('Admin', 'wrongpassword');
     await expect(page.getByRole('alert')).toBeVisible()
     await expect(page.getByRole('alert')).toHaveText('Invalid credentials')
   })
