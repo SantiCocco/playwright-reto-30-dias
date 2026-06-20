@@ -1,12 +1,15 @@
 import { expect, test } from '@playwright/test'
 import { LoginPage } from '../pageObjects/LoginPage'
+import { SidePanel, SidePanelOptions } from '../components/sidePanel';
 
 test.describe('Login OrangeHRM @login', () => {
 
   test('Login to hrm', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.doLogin('Admin', 'admin123');
-    await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
+
+    const sidePanel = new SidePanel(page);
+    await sidePanel.panelOption(SidePanelOptions.ADMIN).isVisible();
   })
 
   test('Empty fields', async ({ page }) => {

@@ -1,22 +1,24 @@
 import { expect, test } from "@playwright/test"
 import { LoginPage } from "../pageObjects/LoginPage";
+import { SidePanel, SidePanelOptions } from "../components/sidePanel";
 
 test.describe('Validate website navigation @Navigation', () => {
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
+    const sidePanel = new SidePanel(page);
     await loginPage.doLogin('Admin', 'admin123');
-    await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
+    await sidePanel.panelOption(SidePanelOptions.ADMIN).isVisible();
   })
 
   test('Check sidebar options @Navigation1', async ({ page }) => {
-    const sidebarItems = page.getByLabel('Sidepanel').getByRole('listitem')
-    const currentSideBarItemsCount = await sidebarItems.count()
+    const sidePanel = new SidePanel(page);
+    const currentSideBarItemsCount = await sidePanel.sidePanelItems.count()
     console.log('Current sidebar items count', currentSideBarItemsCount)
 
     const currentSidebarItems: string[] = []
 
     for (let i = 0; i < currentSideBarItemsCount; i++) {
-      const sidebarText = await sidebarItems.nth(i).innerText()
+      const sidebarText = await sidePanel.sidePanelItems.nth(i).innerText()
       currentSidebarItems.push(sidebarText)
     }
     console.log(currentSidebarItems)
@@ -39,11 +41,11 @@ test.describe('Validate website navigation @Navigation', () => {
   })
 
   test('Navigate through sidebar options @Navigation2', async ({ page }) => {
-    const sidebarItems = page.getByLabel('Sidepanel').getByRole('listitem')
-    const currentSideBarItemsCount = await sidebarItems.count()
+    const sidePanel = new SidePanel(page);
+    const currentSideBarItemsCount = await sidePanel.sidePanelItems.count()
 
     for (let i = 0; i < currentSideBarItemsCount; i++) {
-      const sidebarItem = sidebarItems.nth(i)
+      const sidebarItem = sidePanel.sidePanelItems.nth(i)
       const sidebarText = await sidebarItem.innerText()
 
       console.log(`Navigating to ${sidebarText} page`)
@@ -77,8 +79,8 @@ test.describe('Validate website navigation @Navigation', () => {
         url: '/admin/workShift'
       }
     ]
-
-    await page.getByRole('link', { name: 'Admin' }).click()
+    const sidePanel = new SidePanel(page);
+    await sidePanel.panelOption(SidePanelOptions.ADMIN).click();
     await page.getByRole('navigation', { name: 'Topbar menu' }).getByText('Job').click()
 
     const jobOptions = page.getByRole('menu').locator('li')
@@ -90,6 +92,13 @@ test.describe('Validate website navigation @Navigation', () => {
       await expect(page).toHaveURL(new RegExp(expectedPage.url))
       await page.getByRole('navigation', { name: 'Topbar menu' }).getByText('Job').click()
     }
+  })
+
+  test('Check sidePanel search', async ({ page }) => {
+    const sidePanel = new SidePanel(page);
+    await sidePanel.doSearch('Time')
+    await expect(sidePanel.sidePanelItems).toHaveCount(1);
+    await expect(sidePanel.sidePanelItems.first()).toHaveText('Time');
   })
 })
 
