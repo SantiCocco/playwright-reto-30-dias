@@ -5,7 +5,7 @@ import { LoginPage } from "../pageObjects/LoginPage"
 test.describe('Manage users as admin @UserManagement', () => {
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
-    await loginPage.doLogin('Admin', 'admin123');
+    await loginPage.doLoginAsAdmin();
 
     await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
     await page.getByRole('link', { name: 'Admin' }).click()

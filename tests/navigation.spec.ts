@@ -6,7 +6,7 @@ test.describe('Validate website navigation @Navigation', () => {
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
     const sidePanel = new SidePanel(page);
-    await loginPage.doLogin('Admin', 'admin123');
+    await loginPage.doLoginAsAdmin();
     await sidePanel.panelOption(SidePanelOptions.ADMIN).isVisible();
   })
 

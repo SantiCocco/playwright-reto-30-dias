@@ -4,13 +4,22 @@ import { SidePanel, SidePanelOptions } from '../components/sidePanel';
 
 test.describe('Login OrangeHRM @login', () => {
 
-  test('Login to hrm', async ({ page }) => {
+  test('Login as admin', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    await loginPage.doLogin('Admin', 'admin123');
+    await loginPage.doLoginAsAdmin();
 
     const sidePanel = new SidePanel(page);
     await sidePanel.panelOption(SidePanelOptions.ADMIN).isVisible();
   })
+
+  test('Login as employee', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.doLoginAsEmployee();
+
+    const sidePanel = new SidePanel(page);
+    await expect(sidePanel.panelOption(SidePanelOptions.ADMIN)).toBeHidden();
+  })
+
 
   test('Empty fields', async ({ page }) => {
     const loginPage = new LoginPage(page);
