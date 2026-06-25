@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { LoginPage } from "../pageObjects/LoginPage";
 import { SidePanel, SidePanelOptions } from "../components/sidePanel";
+import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 
 test.describe('Validate website navigation @Navigation', () => {
   test.beforeEach(async ({ page }) => {
@@ -99,6 +100,15 @@ test.describe('Validate website navigation @Navigation', () => {
     await sidePanel.doSearch('Time')
     await expect(sidePanel.sidePanelItems).toHaveCount(1);
     await expect(sidePanel.sidePanelItems.first()).toHaveText('Time');
+  })
+
+  test('check topbar menu navigation @Navigation4', async ({ page }) => {
+    const topBarMenu = new TopBarMenu(page);
+    const sidePanel = new SidePanel(page);
+    await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
+    await topBarMenu.job.clickJobTitles();
+    await topBarMenu.userManagement.clickUsers();
+
   })
 })
 
