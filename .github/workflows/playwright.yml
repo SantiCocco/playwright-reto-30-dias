@@ -17,8 +17,15 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+      
     - name: Run Playwright tests
       run: npx playwright test
+      env:
+        ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
+        ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
+        EMPLOYEE_USERNAME: ${{ vars.EMPLOYEE_USERNAME }}
+        EMPLOYEE_PASSWORD: ${{ vars.EMPLOYEE_PASSWORD }}
+        
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
