@@ -8,7 +8,7 @@ test.describe('Validate website navigation @Navigation', () => {
     const loginPage = new LoginPage(page);
     const sidePanel = new SidePanel(page);
     await loginPage.doLoginAsAdmin();
-    await sidePanel.panelOption(SidePanelOptions.ADMIN).isVisible();
+    await expect(sidePanel.panelOption(SidePanelOptions.ADMIN)).toBeVisible();
   })
 
   test('Check sidebar options @Navigation1', async ({ page }) => {
