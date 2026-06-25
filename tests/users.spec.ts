@@ -89,5 +89,50 @@ test.describe('Manage users as admin @UserManagement', () => {
     await expect(currentUserStatusOptions, "User status options do not match expected values").toEqual(expectedStatusOptions)
   })
 
-})
+  test('filter by user admin', async ({ page }) => {
+    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
 
+    //Filas que contienen role 'Admin'
+    const currentAdminRows = allBodyRows.filter({
+      has: page.getByRole('cell').nth(2).getByText('Admin')
+    })
+    const expectedAdminCount = await currentAdminRows.count()
+    console.log(`Admin users before filtering: ${expectedAdminCount}`)
+
+    //Aplicar filtro por role 'Admin'
+    await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click()
+    await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click()
+    await page.getByRole('button', { name: 'Search' }).click()
+
+    //La tabla filtrada debe contener la misma cantidad de filas que la tabla original
+    await expect(allBodyRows).toHaveCount(expectedAdminCount)
+
+    for (let i = 0; i < expectedAdminCount; i++) {
+      const roleCell = allBodyRows.nth(i).getByRole('cell').nth(2)
+      await expect(roleCell).toHaveText('Admin')
+    }
+  })
+
+  test('filter by user admin V2', async ({ page }) => {
+    const tableBody = page.getByRole('table').getByRole('rowgroup').nth(1);
+    const allBodyRows = tableBody.getByRole('row');
+    const roleCells = allBodyRows.getByRole('cell').nth(2);
+
+    // Contamos cuantas filas Admin hay antes de filtrar
+    const expectedAdminCount = await allBodyRows.filter({ hasText: 'Admin' }).count();
+    console.log(`Admin users before filtering: ${expectedAdminCount}`);
+
+    // Aplicar filtro por role 'Admin'
+    await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click();
+    await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click();
+    await page.getByRole('button', { name: 'Search' }).click();
+
+    // Validamos que la cantidad de filas coincida
+    await expect(allBodyRows).toHaveCount(expectedAdminCount);
+
+    // Creamos un array con la cantidad de filas esperadas, todas con el texto 'Admin' y comparamos
+    const expectedLabels = Array(expectedAdminCount).fill('Admin');
+    await expect(roleCells).toHaveText(expectedLabels);
+  })
+
+})
