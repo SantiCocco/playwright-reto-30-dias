@@ -74,5 +74,20 @@ test.describe('Manage users as admin @UserManagement', () => {
     await expect(page.locator("//label[contains(.,'Username')]/parent::div/following-sibling::div/input"))
       .toHaveValue(randomUser.username)
   })
+
+  test('check user role options @UserManagement4', async ({ page }) => {
+    const expectedRoleOptions = [ '-- Select --', 'Admin', 'ESS' ]
+    await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click()
+    const currentUserRoleOptions = await page.getByRole('listbox').getByRole('option').allInnerTexts()
+    await expect(currentUserRoleOptions, "User role options do not match expected values").toEqual(expectedRoleOptions)
+  })
+
+    test('check user status options @UserManagement4', async ({ page }) => {
+    const expectedStatusOptions = [ '-- Select --', 'Enabled', 'Disabled' ]
+    await page.locator("//label[contains(.,'Status')]/parent::div/following-sibling::div").click()
+    const currentUserStatusOptions = await page.getByRole('listbox').getByRole('option').allInnerTexts()
+    await expect(currentUserStatusOptions, "User status options do not match expected values").toEqual(expectedStatusOptions)
+  })
+
 })
 
