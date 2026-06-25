@@ -1,16 +1,18 @@
 import { expect, test } from "@playwright/test"
 import { LoginPage } from "../pageObjects/LoginPage"
+import { SidePanel, SidePanelOptions } from "../components/sidePanel";
+import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
+
 
 
 test.describe('Manage users as admin @UserManagement', () => {
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
+    const sidePanel = new SidePanel(page);
+    const topBarMenu = new TopBarMenu(page);
     await loginPage.doLoginAsAdmin();
-
-    await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible()
-    await page.getByRole('link', { name: 'Admin' }).click()
-    await page.getByRole('navigation', { name: 'Topbar menu' }).getByText('User Management').click()
-    await page.getByRole('menuitem', { name: 'Users' }).click()
+    await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
+    await topBarMenu.userManagement.clickUsers();
   })
 
   test('Get all the usernames registered @UserManagement1', async ({ page }) => {
