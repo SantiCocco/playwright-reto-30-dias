@@ -5,12 +5,11 @@ import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 
 
 
-test.describe('Manage users as admin @UserManagement', () => {
+test.describe('Manage users as admin @UserManagement @admin', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
+    await page.goto('/web/index.php/auth/login');
     const sidePanel = new SidePanel(page);
     const topBarMenu = new TopBarMenu(page);
-    await loginPage.doLoginAsAdmin();
     await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
     await topBarMenu.userManagement.clickUsers();
   })
@@ -82,14 +81,14 @@ test.describe('Manage users as admin @UserManagement', () => {
     await expect(currentUserRoleOptions, "User role options do not match expected values").toEqual(expectedRoleOptions)
   })
 
-  test('check user status options @UserManagement4', async ({ page }) => {
+  test('check user status options @UserManagement5', async ({ page }) => {
     const expectedStatusOptions = ['-- Select --', 'Enabled', 'Disabled']
     await page.locator("//label[contains(.,'Status')]/parent::div/following-sibling::div").click()
     const currentUserStatusOptions = await page.getByRole('listbox').getByRole('option').allInnerTexts()
     await expect(currentUserStatusOptions, "User status options do not match expected values").toEqual(expectedStatusOptions)
   })
 
-  test('filter by user admin', async ({ page }) => {
+  test('filter by user admin @UserManagement6', async ({ page }) => {
     const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
     // Filas que contienen role 'Admin'
     const currentAdminRows = allBodyRows.filter({
@@ -110,32 +109,26 @@ test.describe('Manage users as admin @UserManagement', () => {
     }
   })
 
-  test('filter by user admin V2', async ({ page }) => {
-    const tableBody = page.getByRole('table').getByRole('rowgroup').nth(1);
-    const allBodyRows = tableBody.getByRole('row');
-    const roleCells = allBodyRows.getByRole('cell').nth(2);
-    // Contamos cuantas filas Admin hay antes de filtrar
-    const expectedAdminCount = await allBodyRows.filter({ hasText: 'Admin' }).count();
-    console.log(`Admin users before filtering: ${expectedAdminCount}`);
-    // Extraemos los textos de la columna 3 de TODAS las filas reales presentes
-    const rowsCount = await allBodyRows.count();
-    const actualLabels: string[] = [];
-    for (let i = 0; i < rowsCount; i++) {
-      const cellText = await allBodyRows.nth(i).getByRole('cell').nth(2).innerText();
-      actualLabels.push(cellText);
-    }
-    // Aplicar filtro por role 'Admin'
-    await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click();
-    await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click();
-    await page.getByRole('button', { name: 'Search' }).click();
-    // Validamos que la cantidad de filas coincida
-    await expect(allBodyRows).toHaveCount(expectedAdminCount);
-    // Creamos un array con la cantidad de filas esperadas, todas con el texto 'Admin' y comparamos
-    const expectedLabels = Array(expectedAdminCount).fill('Admin');
-    console.log(`Actual labels in table:`, actualLabels);
-    console.log(`Expected labels in table:`, expectedLabels);
-    await expect(roleCells).toHaveText(expectedLabels);
-  })
+  test('filter by user admin V2 @UserManagement7', async ({ page }) => {
+  const tableBody = page.getByRole('table').getByRole('rowgroup').nth(1);
+  const allBodyRows = tableBody.getByRole('row');
 
-})
+  // 1. Contamos cuántas filas tienen 'Admin' ANTES de aplicar el filtro
+  const expectedAdminCount = await allBodyRows.filter({ hasText: 'Admin' }).count();
+  console.log(`Admin users expected after filtering: ${expectedAdminCount}`);
 
+  // 2. Aplicar filtro por role 'Admin'
+  await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click();
+  await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click();
+  await page.getByRole('button', { name: 'Search' }).click();
+
+  // 3. Validamos que la cantidad de filas tras el filtro coincida con lo esperado
+  await expect(allBodyRows).toHaveCount(expectedAdminCount);
+
+  // 4. Validamos que la tercera columna (User Role) de todas las filas resultantes sea 'Admin'
+  const expectedLabels = Array(expectedAdminCount).fill('Admin');
+  const roleCellsColumn = allBodyRows.locator('[role="cell"]:nth-child(3)'); // Selecciona la 3ª celda de cada fila
+  
+  await expect(roleCellsColumn).toHaveText(expectedLabels);
+  });
+});

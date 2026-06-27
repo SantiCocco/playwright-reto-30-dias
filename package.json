@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --project='chromium' --headed --grep"
+    "test:all": "npx playwright test",
+    "test:admin": "npx playwright test --project=admin",
+    "test:login": "npx playwright test --project=login",
+    "test:employee": "npx playwright test --project=employee"
   },
   "repository": {
     "type": "git",

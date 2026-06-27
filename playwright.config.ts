@@ -20,7 +20,13 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 2,
+  expect: {
+    // Sube el tiempo de espera por defecto de los expects individuales a 10s
+    timeout: 10000, 
+  },
+  // Sube el timeout global de cada test a 45 o 60 segundos
+  timeout: 45000,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,46 +39,45 @@ export default defineConfig({
     trace: 'on-first-retry',
 
     launchOptions: {
-      slowMo: 1000
+      slowMo: 500
     }
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects for roles */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'setupEmployee',
+      testMatch: /.*\.setupEmployee\.ts/,
     },
-
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: 'setupAdmin',
+      testMatch: /.*\.setupAdmin\.ts/,
     },
-
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'admin',
+      dependencies: ['setupAdmin'],
+      grep: /@admin/,
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: '.auth/admin.json'
+      },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    {
+      name: 'employee',
+      dependencies: ['setupEmployee'],
+      grep: /@employee/,
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: '.auth/employee.json'
+      },
+    },
+    {
+      name: 'login',
+      grep: /@login/,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */

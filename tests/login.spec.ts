@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test'
 import { LoginPage } from '../pageObjects/LoginPage'
 import { SidePanel, SidePanelOptions } from '../components/sidePanel';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Login OrangeHRM @login', () => {
 
   test('Login as admin', async ({ page }) => {

@@ -3,12 +3,9 @@ import { LoginPage } from "../pageObjects/LoginPage";
 import { SidePanel, SidePanelOptions } from "../components/sidePanel";
 import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 
-test.describe('Validate website navigation @Navigation', () => {
+test.describe('Validate website navigation @admin @Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const sidePanel = new SidePanel(page);
-    await loginPage.doLoginAsAdmin();
-    await expect(sidePanel.panelOption(SidePanelOptions.ADMIN)).toBeVisible();
+    await page.goto('/web/index.php/auth/login');
   })
 
   test('Check sidebar options @Navigation1', async ({ page }) => {
@@ -111,5 +108,4 @@ test.describe('Validate website navigation @Navigation', () => {
 
   })
 })
-
 
