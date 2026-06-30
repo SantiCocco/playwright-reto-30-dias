@@ -20,7 +20,7 @@ jobs:
       run: npx playwright install chromium --with-deps
       
     - name: Run Playwright tests
-      run: npx playwright test --project=chromium
+      run: npm run test:all
       env:
         ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
         ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
