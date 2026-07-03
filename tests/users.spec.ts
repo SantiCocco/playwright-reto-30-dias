@@ -135,18 +135,15 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   await expect(roleCellsColumn).toHaveText(expectedLabels);
   });
 
-  test('Add new user @UserManagement8', async ({ page }) => {
+  test('Add new user', async ({ page }) => {
     const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
-    const password = 'Password123!';
-    const employeeToSearch = 'Qwerty LName';
-
     const newUser: UserModel = {
       username: randomUsername,
-      employeeName: employeeToSearch,
+      employeeName: 'Qwerty LName',
       role: 'ESS',
       status: 'Enabled',
-      password: password,
-      confirmPassword: password
+      password: 'Password123!',
+      confirmPassword: 'Password123!'
     };
 
     const addNewUserPage = new AddNewUserPage(page);
@@ -154,19 +151,15 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     await addNewUserPage.validateSuccessMessage();
   })
 
-  test('Validate user creation errors @UserManagement9', async ({ page }) => {
+  test('Validate user creation errors', async ({ page }) => {
     const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
-    const password1 = 'Password123!';
-    const password2 = 'Password456!';
-    const employeeToSearch = 'Qwerty LName';
-    
     const newUser: UserModel = {
       username: randomUsername,
-      employeeName: employeeToSearch,
+      employeeName: 'Qwerty LName',
       role: 'ESS',
       status: 'Enabled',
-      password: password1,
-      confirmPassword: password2
+      password: 'Password123!',
+      confirmPassword: 'Password456!'
     };
 
     const addNewUserPage = new AddNewUserPage(page);
