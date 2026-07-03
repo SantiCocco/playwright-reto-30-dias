@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { LoginPage } from "../pageObjects/LoginPage"
 import { SidePanel, SidePanelOptions } from "../components/sidePanel";
 import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 
@@ -7,7 +6,7 @@ import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 
 test.describe('Manage users as admin @UserManagement @admin', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/web/index.php/auth/login');
+    await page.goto('/web/index.php/dashboard/index');
     const sidePanel = new SidePanel(page);
     const topBarMenu = new TopBarMenu(page);
     await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
@@ -131,4 +130,92 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   
   await expect(roleCellsColumn).toHaveText(expectedLabels);
   });
+
+  test('Add new user @UserManagement8', async ({ page }) => {
+    const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
+    const password = 'Password123!';
+    const employeeToSearch = 'Qwerty LName';
+
+    await page.getByText('Add').click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('User Role') })
+      .locator('div.oxd-select-text-input')
+      .click();
+
+    await page.getByText('ESS', { exact: true }).click();
+    await page.getByRole('textbox', { name: 'Type for hints...' }).fill(employeeToSearch);
+    await page.getByText('Qwerty Qwerty LName', { exact: true }).click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Status') })
+      .locator('div.oxd-select-text-input')
+      .click();
+
+    await page.getByText('Enabled', { exact: true }).click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Username') })
+      .getByRole('textbox')
+      .fill(randomUsername);
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Password', { exact: true }) })
+      .getByRole('textbox')
+      .fill(password);
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Confirm Password', { exact: true }) })
+      .getByRole('textbox')
+      .fill(password);
+
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.locator('p.oxd-text--toast-message')).toHaveText('Successfully Saved');
+  })
+
+  test('Validate user creation errors @UserManagement9', async ({ page }) => {
+    const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
+    const password1 = 'Password123!';
+    const password2 = 'Password456!';
+    const employeeToSearch = 'Qwerty LName';
+
+    await page.getByText('Add').click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('User Role') })
+      .locator('div.oxd-select-text-input')
+      .click();
+
+    await page.getByText('ESS', { exact: true }).click();
+    await page.getByRole('textbox', { name: 'Type for hints...' }).fill(employeeToSearch);
+    await page.getByText('Qwerty Qwerty LName', { exact: true }).click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Status') })
+      .locator('div.oxd-select-text-input')
+      .click();
+
+    await page.getByText('Enabled', { exact: true }).click();
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Username') })
+      .getByRole('textbox')
+      .fill(randomUsername);
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Password', { exact: true }) })
+      .getByRole('textbox')
+      .fill(password1);
+
+    await page.locator('div.oxd-grid-item--gutters')
+      .filter({ has: page.getByText('Confirm Password', { exact: true }) })
+      .getByRole('textbox')
+      .fill(password2);
+
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.locator('span.oxd-input-field-error-message')).toHaveText('Passwords do not match');
+  })
+  
 });
