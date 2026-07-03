@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { UserModel } from "../models/UserModel";
 
 export class AddNewUserPage {
   readonly page: Page;
@@ -78,5 +79,16 @@ export class AddNewUserPage {
 
   async validateErrorMessage(expectedMessage: string) {
     await expect(this.errorMessage).toHaveText(expectedMessage);
+  }
+
+  async addNewUser(user: UserModel) {
+    await this.clickAddButton();
+    await this.selectUserRole(user.role);
+    await this.selectEmployeeName(user.employeeName);
+    await this.selectStatus(user.status);
+    await this.fillUsername(user.username);
+    await this.fillPassword(user.password);
+    await this.fillConfirmPassword(user.confirmPassword);
+    await this.clickSaveButton();
   }
 }

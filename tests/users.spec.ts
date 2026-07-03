@@ -3,6 +3,7 @@ import { SidePanel, SidePanelOptions } from "../components/sidePanel";
 import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 import { Navigate } from "../pageObjects/Navigate";
 import { AddNewUserPage } from "../pageObjects/AddNewUserPage";
+import { UserModel } from "../models/UserModel";
 
 
 
@@ -139,15 +140,17 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     const password = 'Password123!';
     const employeeToSearch = 'Qwerty LName';
 
+    const newUser: UserModel = {
+      username: randomUsername,
+      employeeName: employeeToSearch,
+      role: 'ESS',
+      status: 'Enabled',
+      password: password,
+      confirmPassword: password
+    };
+
     const addNewUserPage = new AddNewUserPage(page);
-    await addNewUserPage.clickAddButton();
-    await addNewUserPage.selectUserRole('ESS');
-    await addNewUserPage.selectEmployeeName(employeeToSearch);
-    await addNewUserPage.selectStatus('Enabled');
-    await addNewUserPage.fillUsername(randomUsername);
-    await addNewUserPage.fillPassword(password);
-    await addNewUserPage.fillConfirmPassword(password);
-    await addNewUserPage.clickSaveButton();
+    await addNewUserPage.addNewUser(newUser);
     await addNewUserPage.validateSuccessMessage();
   })
 
@@ -156,16 +159,18 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     const password1 = 'Password123!';
     const password2 = 'Password456!';
     const employeeToSearch = 'Qwerty LName';
+    
+    const newUser: UserModel = {
+      username: randomUsername,
+      employeeName: employeeToSearch,
+      role: 'ESS',
+      status: 'Enabled',
+      password: password1,
+      confirmPassword: password2
+    };
 
     const addNewUserPage = new AddNewUserPage(page);
-    await addNewUserPage.clickAddButton();
-    await addNewUserPage.selectUserRole('ESS');
-    await addNewUserPage.selectEmployeeName(employeeToSearch);
-    await addNewUserPage.selectStatus('Enabled');
-    await addNewUserPage.fillUsername(randomUsername);
-    await addNewUserPage.fillPassword(password1);
-    await addNewUserPage.fillConfirmPassword(password2);
-    await addNewUserPage.clickSaveButton();
+    await addNewUserPage.addNewUser(newUser);
     await addNewUserPage.validateErrorMessage('Passwords do not match');
   })
   
