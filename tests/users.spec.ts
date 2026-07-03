@@ -1,12 +1,15 @@
 import { expect, test } from "@playwright/test"
 import { SidePanel, SidePanelOptions } from "../components/sidePanel";
 import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
+import { Navigate } from "../pageObjects/Navigate";
+import { AddNewUserPage } from "../pageObjects/AddNewUserPage";
 
 
 
 test.describe('Manage users as admin @UserManagement @admin', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/web/index.php/dashboard/index');
+    const navigate = new Navigate(page);
+    await navigate.toDashboard();
     const sidePanel = new SidePanel(page);
     const topBarMenu = new TopBarMenu(page);
     await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
@@ -136,42 +139,16 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     const password = 'Password123!';
     const employeeToSearch = 'Qwerty LName';
 
-    await page.getByText('Add').click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('User Role') })
-      .locator('div.oxd-select-text-input')
-      .click();
-
-    await page.getByText('ESS', { exact: true }).click();
-    await page.getByRole('textbox', { name: 'Type for hints...' }).fill(employeeToSearch);
-    await page.getByText('Qwerty Qwerty LName', { exact: true }).click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Status') })
-      .locator('div.oxd-select-text-input')
-      .click();
-
-    await page.getByText('Enabled', { exact: true }).click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Username') })
-      .getByRole('textbox')
-      .fill(randomUsername);
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Password', { exact: true }) })
-      .getByRole('textbox')
-      .fill(password);
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Confirm Password', { exact: true }) })
-      .getByRole('textbox')
-      .fill(password);
-
-    await page.getByRole('button', { name: 'Save' }).click();
-
-    await expect(page.locator('p.oxd-text--toast-message')).toHaveText('Successfully Saved');
+    const addNewUserPage = new AddNewUserPage(page);
+    await addNewUserPage.clickAddButton();
+    await addNewUserPage.selectUserRole('ESS');
+    await addNewUserPage.selectEmployeeName(employeeToSearch);
+    await addNewUserPage.selectStatus('Enabled');
+    await addNewUserPage.fillUsername(randomUsername);
+    await addNewUserPage.fillPassword(password);
+    await addNewUserPage.fillConfirmPassword(password);
+    await addNewUserPage.clickSaveButton();
+    await addNewUserPage.validateSuccessMessage();
   })
 
   test('Validate user creation errors @UserManagement9', async ({ page }) => {
@@ -180,42 +157,16 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     const password2 = 'Password456!';
     const employeeToSearch = 'Qwerty LName';
 
-    await page.getByText('Add').click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('User Role') })
-      .locator('div.oxd-select-text-input')
-      .click();
-
-    await page.getByText('ESS', { exact: true }).click();
-    await page.getByRole('textbox', { name: 'Type for hints...' }).fill(employeeToSearch);
-    await page.getByText('Qwerty Qwerty LName', { exact: true }).click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Status') })
-      .locator('div.oxd-select-text-input')
-      .click();
-
-    await page.getByText('Enabled', { exact: true }).click();
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Username') })
-      .getByRole('textbox')
-      .fill(randomUsername);
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Password', { exact: true }) })
-      .getByRole('textbox')
-      .fill(password1);
-
-    await page.locator('div.oxd-grid-item--gutters')
-      .filter({ has: page.getByText('Confirm Password', { exact: true }) })
-      .getByRole('textbox')
-      .fill(password2);
-
-    await page.getByRole('button', { name: 'Save' }).click();
-
-    await expect(page.locator('span.oxd-input-field-error-message')).toHaveText('Passwords do not match');
+    const addNewUserPage = new AddNewUserPage(page);
+    await addNewUserPage.clickAddButton();
+    await addNewUserPage.selectUserRole('ESS');
+    await addNewUserPage.selectEmployeeName(employeeToSearch);
+    await addNewUserPage.selectStatus('Enabled');
+    await addNewUserPage.fillUsername(randomUsername);
+    await addNewUserPage.fillPassword(password1);
+    await addNewUserPage.fillConfirmPassword(password2);
+    await addNewUserPage.clickSaveButton();
+    await addNewUserPage.validateErrorMessage('Passwords do not match');
   })
   
 });
