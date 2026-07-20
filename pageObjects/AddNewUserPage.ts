@@ -44,17 +44,17 @@ export class AddNewUserPage {
 
   async selectUserRole(role: string) {
     await this.userRoleDropdown.click();
-    await this.page.getByText(role, { exact: true }).click();
+    await this.page.getByRole('listbox').getByText(role, { exact: true }).click();
   }
 
   async selectStatus(status: string) {
     await this.statusDropdown.click();
-    await this.page.getByText(status).click();
+    await this.page.getByRole('listbox').getByText(status, { exact: true }).click();
   }
 
   async selectEmployeeName(employeeName: string) {
     await this.employeeNameInput.fill(employeeName);
-    await this.page.getByText(employeeName).click();
+    await this.page.getByText(employeeName).first().click();
   }
 
   async fillUsername(username: string) {

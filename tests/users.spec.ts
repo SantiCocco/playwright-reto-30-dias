@@ -4,6 +4,7 @@ import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 import { Navigate } from "../pageObjects/Navigate";
 import { AddNewUserPage } from "../pageObjects/AddNewUserPage";
 import { UserModel } from "../models/UserModel";
+import { UserFactory } from "../factory/UserFactory";
 
 
 
@@ -136,35 +137,24 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   });
 
   test('Add new user', async ({ page }) => {
-    const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
-    const newUser: UserModel = {
-      username: randomUsername,
-      employeeName: 'Qwerty LName',
-      role: 'ESS',
-      status: 'Enabled',
-      password: 'Password123!',
-      confirmPassword: 'Password123!'
-    };
+    const adminUser = UserFactory.createAdmin({
+      employeeName: 'Manda akhil user'
+    });
 
     const addNewUserPage = new AddNewUserPage(page);
-    await addNewUserPage.addNewUser(newUser);
+    await addNewUserPage.addNewUser(adminUser);
     await addNewUserPage.validateSuccessMessage();
   })
 
   test('Validate user creation errors', async ({ page }) => {
-    const randomUsername = 'goku' + crypto.randomUUID().slice(0, 6);
-    const newUser: UserModel = {
-      username: randomUsername,
-      employeeName: 'Qwerty LName',
-      role: 'ESS',
-      status: 'Enabled',
-      password: 'Password123!',
-      confirmPassword: 'Password456!'
-    };
+    const newUser = UserFactory.createEmployeeESS(
+      {
+        confirmPassword: 'Password456!'
+      }
+    );
 
     const addNewUserPage = new AddNewUserPage(page);
     await addNewUserPage.addNewUser(newUser);
     await addNewUserPage.validateErrorMessage('Passwords do not match');
   })
-  
 });
