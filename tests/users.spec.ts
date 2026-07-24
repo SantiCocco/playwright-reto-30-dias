@@ -49,16 +49,18 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   })
 
   test('Select random user for edition @UserManagement3', async ({ page }) => {
-    const rows = page.getByRole('table').getByRole('row');
+    const rows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row');
+    await expect(rows.first()).toBeVisible();
+
     const rowCount = await rows.count()
     const users: {
       username: string;
       rowIndex: number;
     }[] = [];
 
-    for (let i = 1; i < rowCount; i++) {
+    for (let i = 0; i < rowCount; i++) {
       const userNameCell = rows.nth(i).getByRole('cell').nth(1)
-      const username = await userNameCell.textContent()
+      const username = (await userNameCell.textContent())?.trim()
       if (username && username !== 'Admin') {
         users.push({
           username: username,
@@ -66,6 +68,8 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
         })
       }
     }
+
+    expect(users, 'No editable users found in the users table').not.toHaveLength(0);
 
     const randomUser = users[Math.floor(Math.random() * users.length)];
     const selectedRow = rows.nth(randomUser.rowIndex);
@@ -136,13 +140,53 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   await expect(roleCellsColumn).toHaveText(expectedLabels);
   });
 
-  test('Add new user', async ({ page }) => {
+  test('Add new user admin', async ({ page }) => {
+
+    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
+    // Filas que contienen role 'Admin'
+    const currentAdminRows = allBodyRows.filter({
+      has: page.getByRole('cell').nth(2).getByText('Admin')
+    })
+    const firstAdminRow = currentAdminRows.nth(0)
+    await expect(firstAdminRow,"Not admin user in the list").toHaveCount(1)
+    await firstAdminRow.locator('button')
+      .filter({ has: page.locator('i.bi-pencil-fill') }).click();
+
+    const fullUserToSearch = await page.getByRole('textbox', { name: 'Type for hints...' }).inputValue();
+    console.log(`Employee name to search: ${fullUserToSearch}`)
+
     const adminUser = UserFactory.createAdmin({
-      employeeName: 'Manda akhil user'
+      employeeName: fullUserToSearch
     });
 
+    await page.goBack();
     const addNewUserPage = new AddNewUserPage(page);
     await addNewUserPage.addNewUser(adminUser);
+    await addNewUserPage.validateSuccessMessage();
+  })
+
+  test('Add new user ESS', async ({ page }) => {
+
+    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
+    // Filas que contienen role 'ESS'
+    const currentESSRows = allBodyRows.filter({
+      has: page.getByRole('cell').nth(2).getByText('ESS')
+    })
+    const firstESSRow = currentESSRows.nth(0)
+    await expect(firstESSRow,"Not ESS user in the list").toHaveCount(1)
+    await firstESSRow.locator('button')
+      .filter({ has: page.locator('i.bi-pencil-fill') }).click();
+
+    const fullUserToSearch = await page.getByRole('textbox', { name: 'Type for hints...' }).inputValue();
+    console.log(`Employee name to search: ${fullUserToSearch}`)
+
+    const essUser = UserFactory.createEmployeeESS({
+      employeeName: fullUserToSearch
+    });
+
+    await page.goBack();
+    const addNewUserPage = new AddNewUserPage(page);
+    await addNewUserPage.addNewUser(essUser);
     await addNewUserPage.validateSuccessMessage();
   })
 
