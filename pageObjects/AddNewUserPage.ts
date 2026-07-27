@@ -91,4 +91,8 @@ export class AddNewUserPage {
     await this.fillConfirmPassword(user.confirmPassword);
     await this.clickSaveButton();
   }
+
+  async getEmployeeName(): Promise<string> {
+    return await this.employeeNameInput.inputValue();
+  }
 }

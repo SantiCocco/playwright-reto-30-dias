@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test"
-import { SidePanel, SidePanelOptions } from "../components/sidePanel";
+import { SidePanel, SidePanelOptions } from "../components/SidePanel";
+import { UsersTable } from "../components/UsersTable";
 import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 import { Navigate } from "../pageObjects/Navigate";
 import { AddNewUserPage } from "../pageObjects/AddNewUserPage";
-import { UserModel } from "../models/UserModel";
 import { UserFactory } from "../factory/UserFactory";
 
 
@@ -96,28 +96,21 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     await expect(currentUserStatusOptions, "User status options do not match expected values").toEqual(expectedStatusOptions)
   })
 
-  test('filter by user admin @UserManagement6', async ({ page }) => {
-    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
-    // Filas que contienen role 'Admin'
-    const currentAdminRows = allBodyRows.filter({
-      has: page.getByRole('cell').nth(2).getByText('Admin')
-    })
+  test('filter by user admin', async ({ page }) => {
+    const usersTable = new UsersTable(page);
+    const allBodyRows = usersTable.getAllBodyRows();
+    const currentAdminRows = usersTable.getRowsByRole('Admin');
+
     const expectedAdminCount = await currentAdminRows.count()
     console.log(`Admin users before filtering: ${expectedAdminCount}`)
-    // Aplicar filtro por role 'Admin'
-    await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click()
-    await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click()
-    await page.getByRole('button', { name: 'Search' }).click()
-    // La tabla filtrada debe contener la misma cantidad de filas que la tabla original
-    await expect(allBodyRows).toHaveCount(expectedAdminCount)
+    
+    usersTable.applyFilterByRole('Admin');
 
-    for (let i = 0; i < expectedAdminCount; i++) {
-      const roleCell = allBodyRows.nth(i).getByRole('cell').nth(2)
-      await expect(roleCell).toHaveText('Admin')
-    }
+    await expect(allBodyRows).toHaveCount(expectedAdminCount)
+    await usersTable.validateAllUsersHaveRole('Admin', expectedAdminCount)
   })
 
-  test('filter by user admin V2 @UserManagement7', async ({ page }) => {
+  test('filter by user admin V2', async ({ page }) => {
   const tableBody = page.getByRole('table').getByRole('rowgroup').nth(1);
   const allBodyRows = tableBody.getByRole('row');
 
@@ -126,9 +119,8 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   console.log(`Admin users expected after filtering: ${expectedAdminCount}`);
 
   // 2. Aplicar filtro por role 'Admin'
-  await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click();
-  await page.getByRole('listbox').getByRole('option', { name: 'Admin' }).click();
-  await page.getByRole('button', { name: 'Search' }).click();
+  const usersTable = new UsersTable(page);
+  usersTable.applyFilterByRole('Admin');
 
   // 3. Validamos que la cantidad de filas tras el filtro coincida con lo esperado
   await expect(allBodyRows).toHaveCount(expectedAdminCount);
@@ -141,51 +133,34 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   });
 
   test('Add new user admin', async ({ page }) => {
+    const usersTable = new UsersTable(page);
+    await usersTable.editFirstRole('Admin');
 
-    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
-    // Filas que contienen role 'Admin'
-    const currentAdminRows = allBodyRows.filter({
-      has: page.getByRole('cell').nth(2).getByText('Admin')
-    })
-    const firstAdminRow = currentAdminRows.nth(0)
-    await expect(firstAdminRow,"Not admin user in the list").toHaveCount(1)
-    await firstAdminRow.locator('button')
-      .filter({ has: page.locator('i.bi-pencil-fill') }).click();
-
-    const fullUserToSearch = await page.getByRole('textbox', { name: 'Type for hints...' }).inputValue();
-    console.log(`Employee name to search: ${fullUserToSearch}`)
+    const addNewUserPage = new AddNewUserPage(page);
+    const employeeName = await addNewUserPage.getEmployeeName();
 
     const adminUser = UserFactory.createAdmin({
-      employeeName: fullUserToSearch
+      employeeName: employeeName
     });
 
     await page.goBack();
-    const addNewUserPage = new AddNewUserPage(page);
+  
     await addNewUserPage.addNewUser(adminUser);
     await addNewUserPage.validateSuccessMessage();
   })
 
   test('Add new user ESS', async ({ page }) => {
+    const usersTable = new UsersTable(page);
+    await usersTable.editFirstRole('ESS');
 
-    const allBodyRows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row')
-    // Filas que contienen role 'ESS'
-    const currentESSRows = allBodyRows.filter({
-      has: page.getByRole('cell').nth(2).getByText('ESS')
-    })
-    const firstESSRow = currentESSRows.nth(0)
-    await expect(firstESSRow,"Not ESS user in the list").toHaveCount(1)
-    await firstESSRow.locator('button')
-      .filter({ has: page.locator('i.bi-pencil-fill') }).click();
-
-    const fullUserToSearch = await page.getByRole('textbox', { name: 'Type for hints...' }).inputValue();
-    console.log(`Employee name to search: ${fullUserToSearch}`)
+    const addNewUserPage = new AddNewUserPage(page);
+    const employeeName = await addNewUserPage.getEmployeeName();
 
     const essUser = UserFactory.createEmployeeESS({
-      employeeName: fullUserToSearch
+      employeeName: employeeName
     });
 
     await page.goBack();
-    const addNewUserPage = new AddNewUserPage(page);
     await addNewUserPage.addNewUser(essUser);
     await addNewUserPage.validateSuccessMessage();
   })

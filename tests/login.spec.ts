@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { LoginPage } from '../pageObjects/LoginPage'
-import { SidePanel, SidePanelOptions } from '../components/sidePanel';
+import { SidePanel, SidePanelOptions } from '../components/SidePanel';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
