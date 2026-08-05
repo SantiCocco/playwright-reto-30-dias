@@ -15,7 +15,7 @@ npm run test:employee -- --headed
 npm run test:all -- --headed
 
 # specify test description
-npm run test:admin -- -g 'test'
+npm run test:admin -- --headed -g 'test'
 
 # playwright debug mode
 PWDEBUG=1 npm run test:admin -- -g 'test'

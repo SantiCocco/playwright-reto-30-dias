@@ -20,9 +20,8 @@ export class UsersTable {
   }
 
   private async getFirstRoleFromTable(role: string): Promise<Locator> {
-    const roleRows = await this.getRowsByRole(role).all();
-    const firstRoleRow = roleRows[0];
-    await expect(firstRoleRow, `Not ${role} user in the list`).toHaveCount(1);
+    const firstRoleRow = this.getRowsByRole(role).first();
+    await expect(firstRoleRow, `No ${role} user in the list`).toBeVisible();
     return firstRoleRow;
   }
 
@@ -45,5 +44,39 @@ export class UsersTable {
       await expect(roleCell).toHaveText(role)
     }
   }
-}
 
+  async validateAllUserNotPresent(username: string) {
+    const allBodyRows = this.getAllBodyRows();
+    const rowCount = await allBodyRows.count();
+    for (let i = 0; i < rowCount; i++) {
+      const usernameCell = allBodyRows.nth(i).getByRole('cell').nth(1);
+      await expect(usernameCell).not.toHaveText(username);
+    }
+  }
+
+  async validateUserIsPresent(username: string) {
+    const allBodyRows = this.getAllBodyRows();
+    const userRow = allBodyRows.filter({
+      has: this.page.getByRole('cell').nth(1).getByText(username, { exact: true })
+    });
+    await expect(userRow.first(), `User with username ${username} not found`).toBeVisible();
+  }
+
+  async clickDeleteByUserName(username: string) {
+    const allBodyRows = this.getAllBodyRows();
+    const userRow = allBodyRows.filter({
+      has: this.page.getByRole('cell').nth(1).getByText(username)
+    });
+    await expect(userRow, `User with username ${username} not found`).toHaveCount(1);
+    const deleteButton = userRow.locator('button').filter({ has: this.page.locator('i.bi-trash') });
+    await deleteButton.click();
+  }
+
+  async acceptDeleteUser() {
+    await this.page.getByRole('button', { name: /Yes, Delete/ }).click();
+  }
+
+  async cancelDeleteUser() {
+    await this.page.getByRole('button', { name: /No, Cancel/ }).click();
+  }
+}

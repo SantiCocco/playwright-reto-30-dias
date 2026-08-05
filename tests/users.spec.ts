@@ -1,7 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { SidePanel, SidePanelOptions } from "../components/SidePanel";
 import { UsersTable } from "../components/UsersTable";
-import { TopBarMenu } from "../components/top-bar-menu/TopBarMenu";
 import { Navigate } from "../pageObjects/Navigate";
 import { AddNewUserPage } from "../pageObjects/AddNewUserPage";
 import { UserFactory } from "../factory/UserFactory";
@@ -11,11 +9,7 @@ import { UserFactory } from "../factory/UserFactory";
 test.describe('Manage users as admin @UserManagement @admin', () => {
   test.beforeEach(async ({ page }) => {
     const navigate = new Navigate(page);
-    await navigate.toDashboard();
-    const sidePanel = new SidePanel(page);
-    const topBarMenu = new TopBarMenu(page);
-    await sidePanel.clickOnOption(SidePanelOptions.ADMIN);
-    await topBarMenu.userManagement.clickUsers();
+    await navigate.toUsers();
   })
 
   test('Get all the usernames registered @UserManagement1', async ({ page }) => {
@@ -146,8 +140,8 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     await page.goBack();
   
     await addNewUserPage.addNewUser(adminUser);
-    await addNewUserPage.validateSuccessMessage();
-  })
+    await addNewUserPage.validateSuccessSavedMessage();
+  });
 
   test('Add new user ESS', async ({ page }) => {
     const usersTable = new UsersTable(page);
@@ -162,8 +156,8 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
 
     await page.goBack();
     await addNewUserPage.addNewUser(essUser);
-    await addNewUserPage.validateSuccessMessage();
-  })
+    await addNewUserPage.validateSuccessSavedMessage();
+  });
 
   test('Validate user creation errors', async ({ page }) => {
     const newUser = UserFactory.createEmployeeESS(
@@ -171,9 +165,47 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
         confirmPassword: 'Password456!'
       }
     );
-
     const addNewUserPage = new AddNewUserPage(page);
     await addNewUserPage.addNewUser(newUser);
     await addNewUserPage.validateErrorMessage('Passwords do not match');
-  })
+  });
+
+  test('Delete user admin', async ({ page }) => {
+    //Arrange
+    const usersTable = new UsersTable(page);
+    await usersTable.editFirstRole('Admin');
+    const addNewUserPage = new AddNewUserPage(page);
+    const employeeName = await addNewUserPage.getEmployeeName();
+    const adminUser = UserFactory.createAdmin({
+      employeeName: employeeName
+    });
+    await page.goBack();
+    await addNewUserPage.addNewUser(adminUser);
+    await addNewUserPage.validateSuccessSavedMessage();
+    //Act
+    await usersTable.clickDeleteByUserName(adminUser.username);
+    await usersTable.acceptDeleteUser();
+    //Assert
+    await addNewUserPage.validateSuccessDeletedMessage();
+    await usersTable.validateAllUserNotPresent(adminUser.username);
+  });
+
+    test('Cancel user admin Deletion', async ({ page }) => {
+    //Arrange
+    const usersTable = new UsersTable(page);
+    await usersTable.editFirstRole('Admin');
+    const addNewUserPage = new AddNewUserPage(page);
+    const employeeName = await addNewUserPage.getEmployeeName();
+    const adminUser = UserFactory.createAdmin({
+      employeeName: employeeName
+    });
+    await page.goBack();
+    await addNewUserPage.addNewUser(adminUser);
+    await addNewUserPage.validateSuccessSavedMessage();
+    //Act
+    await usersTable.clickDeleteByUserName(adminUser.username);
+    await usersTable.cancelDeleteUser();
+    //Assert
+    await usersTable.validateUserIsPresent(adminUser.username);
+  });
 });

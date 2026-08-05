@@ -16,7 +16,7 @@ export class AddNewUserPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.addButton = this.page.getByText('Add');
+    this.addButton = this.page.getByRole('button', { name: /Add/ });
     this.userRoleDropdown = this.page.locator('div.oxd-grid-item--gutters')
       .filter({ has: this.page.getByText('User Role') })
       .locator('div.oxd-select-text-input');
@@ -73,8 +73,12 @@ export class AddNewUserPage {
     await this.saveButton.click();
   }
 
-  async validateSuccessMessage() {
+  async validateSuccessSavedMessage() {
     await expect(this.successMessage).toHaveText('Successfully Saved');
+  }
+
+    async validateSuccessDeletedMessage() {
+    await expect(this.successMessage).toHaveText('Successfully Deleted', { timeout: 30000 });
   }
 
   async validateErrorMessage(expectedMessage: string) {
@@ -93,6 +97,7 @@ export class AddNewUserPage {
   }
 
   async getEmployeeName(): Promise<string> {
+    await expect(this.employeeNameInput).toHaveValue(/\S/);
     return await this.employeeNameInput.inputValue();
   }
 }
