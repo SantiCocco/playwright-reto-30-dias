@@ -6,13 +6,13 @@ import { UserFactory } from "../factory/UserFactory";
 
 
 
-test.describe('Manage users as admin @UserManagement @admin', () => {
+test.describe('Manage users as admin @users @admin', () => {
   test.beforeEach(async ({ page }) => {
     const navigate = new Navigate(page);
     await navigate.toUsers();
   })
 
-  test('Get all the usernames registered @UserManagement1', async ({ page }) => {
+  test('Get all the usernames registered', async ({ page }) => {
     const rows = page.getByRole('table').getByRole('row')
     const usernames: string[] = []
     const rowCount = await rows.count()
@@ -27,7 +27,7 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     console.log(usernames)
   })
 
-  test('Get all the Employee names registered @UserManagement2', async ({ page }) => {
+  test('Get all the Employee names registered', async ({ page }) => {
     const rows = page.getByRole('table').getByRole('row')
     const employeeNames: string[] = []
     const rowCount = await rows.count()
@@ -42,7 +42,7 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     console.log(employeeNames)
   })
 
-  test('Select random user for edition @UserManagement3', async ({ page }) => {
+  test('Select random user for edition', async ({ page }) => {
     const rows = page.getByRole('table').getByRole('rowgroup').nth(1).getByRole('row');
     await expect(rows.first()).toBeVisible();
 
@@ -76,21 +76,21 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
       .toHaveValue(randomUser.username)
   })
 
-  test('check user role options @UserManagement4', async ({ page }) => {
+  test('check user role options', async ({ page }) => {
     const expectedRoleOptions = ['-- Select --', 'Admin', 'ESS']
     await page.locator("//label[contains(.,'User Role')]/parent::div/following-sibling::div").click()
     const currentUserRoleOptions = await page.getByRole('listbox').getByRole('option').allInnerTexts()
     await expect(currentUserRoleOptions, "User role options do not match expected values").toEqual(expectedRoleOptions)
   })
 
-  test('check user status options @UserManagement5', async ({ page }) => {
+  test('check user status options', async ({ page }) => {
     const expectedStatusOptions = ['-- Select --', 'Enabled', 'Disabled']
     await page.locator("//label[contains(.,'Status')]/parent::div/following-sibling::div").click()
     const currentUserStatusOptions = await page.getByRole('listbox').getByRole('option').allInnerTexts()
     await expect(currentUserStatusOptions, "User status options do not match expected values").toEqual(expectedStatusOptions)
   })
 
-  test('filter by user admin', async ({ page }) => {
+  test('filter by user admin @smoke', async ({ page }) => {
     const usersTable = new UsersTable(page);
     const allBodyRows = usersTable.getAllBodyRows();
     const currentAdminRows = usersTable.getRowsByRole('Admin');
@@ -126,7 +126,7 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
   await expect(roleCellsColumn).toHaveText(expectedLabels);
   });
 
-  test('Add new user admin', async ({ page }) => {
+  test('Add new user admin @smoke', async ({ page }) => {
     const usersTable = new UsersTable(page);
     await usersTable.editFirstRole('Admin');
 
@@ -170,7 +170,7 @@ test.describe('Manage users as admin @UserManagement @admin', () => {
     await addNewUserPage.validateErrorMessage('Passwords do not match');
   });
 
-  test('Delete user admin', async ({ page }) => {
+  test('Delete user admin @smoke', async ({ page }) => {
     //Arrange
     const usersTable = new UsersTable(page);
     await usersTable.editFirstRole('Admin');
